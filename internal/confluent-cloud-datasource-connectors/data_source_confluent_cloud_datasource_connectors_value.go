@@ -1,6 +1,9 @@
 package confluentCloudDatasourceConnectors
 
 import (
+	"context"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
 
@@ -14,7 +17,7 @@ const (
 
 func kafkaTopicDataSource() *schema.Resource {
 	return &schema.Resource{
-		Read: confluentCloudConnectorsRead,
+		ReadContext: confluentCloudConnectorsRead,
 		Schema: map[string]*schema.Schema{
 			paramKafkaClusterId: {
 				Type:     schema.TypeString,
@@ -42,19 +45,17 @@ func kafkaTopicDataSource() *schema.Resource {
 	}
 }
 
-//func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-func confluentCloudConnectorsRead(d *schema.ResourceData, meta interface{}) error {
-
+func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	// must be set to something or all data values be null
 	d.SetId("must")
 
 	connectors := make(map[string]string)
 	connectors["x"] = "z"
 	if err := d.Set(paramConnectors, connectors); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 	if err := d.Set(paramAvalue, "hello"); err != nil {
-		return err
+		return diag.FromErr(err)
 	}
 
 	//tflog.Debug(fmt.Sprintf("============================================================= Connectors found: %d", len(connectors)))
