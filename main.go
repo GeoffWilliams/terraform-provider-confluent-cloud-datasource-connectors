@@ -1,15 +1,13 @@
-// main.go
 package main
 
 import (
-	"github.com/hashicorp/terraform-plugin-sdk/plugin"
-	"github.com/hashicorp/terraform-plugin-sdk/terraform"
+	confluentCloudDatastore "github.com/geoffwilliams/terraform-provider-confluent-cloud-datasource-connectors/internal/confluent-cloud-datasource-connectors"
+
+	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 )
 
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: func() terraform.ResourceProvider {
-			return Provider()
-		},
+		ProviderFunc: confluentCloudDatastore.Provider,
 	})
 }
