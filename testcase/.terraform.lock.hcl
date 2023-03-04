@@ -5,6 +5,6 @@ provider "terraform.local/local/confluent-cloud-datasource-connectors" {
   version     = "0.0.1"
   constraints = "0.0.1"
   hashes = [
-    "h1:yNAEy1xUD453SiBEcYEqIcBcIjD1On4fbGEadagMbmU=",
+    "h1:6zHBW28KGpTdlbFniL0Vk+XRrYq8zvUucUi9CzJ252k=",
   ]
 }

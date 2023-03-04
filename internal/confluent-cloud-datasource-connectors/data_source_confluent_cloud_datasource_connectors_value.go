@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	paramConnectors     = "connectors"
+	paramConfig         = "config"
+	paramStatus         = "status"
 	paramKafkaClusterId = "kafka_cluster_id"
 	paramEnvironmentId  = "environment_id"
 
-	paramAvalue = "avalue"
+	paramConnectorName = "connector_name"
 )
 
 func kafkaTopicDataSource() *schema.Resource {
@@ -28,15 +29,19 @@ func kafkaTopicDataSource() *schema.Resource {
 				Required: true,
 			},
 
-			paramConnectors: {
+			paramConnectorName: {
+				Type:     schema.TypeString,
+				Required: true,
+			},
+
+			paramConfig: {
 				Type: schema.TypeMap,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 				Computed: true,
 			},
-
-			paramAvalue: {
+			paramStatus: {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -49,12 +54,13 @@ func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, m
 	// must be set to something or all data values be null
 	d.SetId("must")
 
-	connectors := make(map[string]string)
-	connectors["x"] = "z"
-	if err := d.Set(paramConnectors, connectors); err != nil {
+	config := make(map[string]string)
+	config["x"] = "z"
+	if err := d.Set(paramConfig, config); err != nil {
 		return diag.FromErr(err)
 	}
-	if err := d.Set(paramAvalue, "hello"); err != nil {
+
+	if err := d.Set(paramStatus, "NOT_DEFINED"); err != nil {
 		return diag.FromErr(err)
 	}
 

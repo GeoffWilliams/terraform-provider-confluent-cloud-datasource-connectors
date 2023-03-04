@@ -8,22 +8,23 @@ terraform {
   }
 }
 
+locals {
+  connectors_to_lookup = {"aconnector":{}, "anotherconnector":{}}
+}
 
-data "confluent-cloud-datasource-connectors" "mycluster" {
+data "confluent-cloud-datasource-connectors" "connectors" {
+  for_each = local.connectors_to_lookup
   environment_id = "anenv"
   kafka_cluster_id = "deadbeef"
+  connector_name = each.key
 }
 
-output "debug" {
-  value = data.confluent-cloud-datasource-connectors.mycluster.connectors
+output "aconnector" {
+  value = data.confluent-cloud-datasource-connectors.connectors["aconnector"]
 }
 
-output "avalue" {
-  value = data.confluent-cloud-datasource-connectors.mycluster.avalue
-}
-
-output "dump" {
-  value = data.confluent-cloud-datasource-connectors.mycluster
+output "anotherconnector" {
+  value = data.confluent-cloud-datasource-connectors.connectors["anotherconnector"]
 }
 
 output "bump" {
