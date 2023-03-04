@@ -1,8 +1,10 @@
-package confluentCloudDatasourceConnectors
+package provider
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -16,7 +18,7 @@ const (
 	paramConnectorName = "connector_name"
 )
 
-func kafkaTopicDataSource() *schema.Resource {
+func confluentConnectorsDataSource() *schema.Resource {
 	return &schema.Resource{
 		ReadContext: confluentCloudConnectorsRead,
 		Schema: map[string]*schema.Schema{
@@ -51,12 +53,34 @@ func kafkaTopicDataSource() *schema.Resource {
 }
 
 func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// must be set to something or all data values be null
-	d.SetId("must")
+	// must be set to something or all data values be null!
+	c := meta.(*Client)
 
-	config := make(map[string]string)
-	config["x"] = "z"
-	if err := d.Set(paramConfig, config); err != nil {
+	// connector info
+	req1 := c.connectClient.ConnectorsV1Api.ReadConnectv1Connector(
+		c.connectApiContext(ctx),
+		d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
+	)
+	apiError, something, err := req1.Execute()
+	tflog.Debug(ctx, fmt.Sprintf("apiError: %s", apiError))
+	tflog.Debug(ctx, fmt.Sprintf("something: %s", something))
+	tflog.Debug(ctx, fmt.Sprintf("err: %s", err))
+
+	// connector config
+	req2 := c.connectClient.ConnectorsV1Api.GetConnectv1ConnectorConfig(
+		c.connectApiContext(ctx),
+		d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
+	)
+	apiError1, something1, err1 := req2.Execute()
+	tflog.Debug(ctx, fmt.Sprintf("apiError1: %s", apiError1))
+	tflog.Debug(ctx, fmt.Sprintf("something1: %s", something1))
+	tflog.Debug(ctx, fmt.Sprintf("err1: %s", err1))
+
+	d.SetId(d.Get(paramConnectorName).(string))
+
+	// config := make(map[string]string)
+	// config["x"] = "z"
+	if err := d.Set(paramConfig, something1); err != nil {
 		return diag.FromErr(err)
 	}
 
