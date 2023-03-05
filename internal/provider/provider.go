@@ -129,7 +129,7 @@ func New(version, userAgent string) func() *schema.Provider {
 				},
 			},
 			DataSourcesMap: map[string]*schema.Resource{
-				"confluent_connectors": confluentConnectorsDataSource(),
+				"confluent-cloud-datasource-connectors": confluentConnectorsDataSource(),
 			},
 		}
 

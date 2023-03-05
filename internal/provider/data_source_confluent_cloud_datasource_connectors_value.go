@@ -2,9 +2,7 @@ package provider
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/hashicorp/terraform-plugin-log/tflog"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 )
@@ -57,30 +55,34 @@ func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, m
 	c := meta.(*Client)
 
 	// connector info
-	req1 := c.connectClient.ConnectorsV1Api.ReadConnectv1Connector(
+	connectorInfoReq := c.connectClient.ConnectorsV1Api.ReadConnectv1Connector(
 		c.connectApiContext(ctx),
 		d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
 	)
-	apiError, something, err := req1.Execute()
-	tflog.Debug(ctx, fmt.Sprintf("apiError: %s", apiError))
-	tflog.Debug(ctx, fmt.Sprintf("something: %s", something))
-	tflog.Debug(ctx, fmt.Sprintf("err: %s", err))
+	connector, _, err := connectorInfoReq.Execute()
+	if err != nil {
+		return diag.Errorf("error reading Connector %q: %s", d.Id(), createDescriptiveError(err))
+	}
 
-	// connector config
-	req2 := c.connectClient.ConnectorsV1Api.GetConnectv1ConnectorConfig(
-		c.connectApiContext(ctx),
-		d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
-	)
-	apiError1, something1, err1 := req2.Execute()
-	tflog.Debug(ctx, fmt.Sprintf("apiError1: %s", apiError1))
-	tflog.Debug(ctx, fmt.Sprintf("something1: %s", something1))
-	tflog.Debug(ctx, fmt.Sprintf("err1: %s", err1))
+	// tflog.Debug(ctx, fmt.Sprintf("apiError: %s", apiError))
+	// tflog.Debug(ctx, fmt.Sprintf("something: %s", something))
+	// tflog.Debug(ctx, fmt.Sprintf("err: %s", err))
+
+	// // connector config
+	// req2 := c.connectClient.ConnectorsV1Api.GetConnectv1ConnectorConfig(
+	// 	c.connectApiContext(ctx),
+	// 	d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
+	// )
+	// apiError1, something1, err1 := req2.Execute()
+	// tflog.Debug(ctx, fmt.Sprintf("apiError1: %s", apiError1))
+	// tflog.Debug(ctx, fmt.Sprintf("something1: %s", something1))
+	// tflog.Debug(ctx, fmt.Sprintf("err1: %s", err1))
 
 	d.SetId(d.Get(paramConnectorName).(string))
 
 	// config := make(map[string]string)
 	// config["x"] = "z"
-	if err := d.Set(paramConfig, something1); err != nil {
+	if err := d.Set(paramConfig, connector.Config); err != nil {
 		return diag.FromErr(err)
 	}
 
