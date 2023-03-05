@@ -1,33 +1,15 @@
+# terraform-provider-confluent-cloud-datasource-connectors
+
+This is an experiment to read data from the Confluent Cloud API to determine whether a named connector exists or not.
+
+Useful output is an argument `.status` containing either `DEFINED` or `NOT_DEFINED`
+
+Project is heavily derived from [confluent-terraform-provider](https://docs.confluent.io/cloud/current/get-started/terraform-provider.html#using-the-confluent-terraform-provider)
+
 ## Example Usage
 
-```hcl
-terraform {
-  required_providers {
-    env = {
-      source  = "clockworksoul/env"
-      version = "0.0.2"
-    }
-  }
-}
-```
+see [testcase](testcase/test.tf)
 
-## Using the Value Data Source
-
-```hcl
-data "env_value" "environment" {
-  key = "ENV"
-}
-
-resource "aws_instance" "web" {
-  ami           = data.aws_ami.ubuntu.id
-  instance_type = "t3.micro"
-
-  tags = {
-    Name = "HelloWorld"
-    env  = data.env_value.environment.value
-  }
-}
-```
 
 # deploy plugin locally for dev/test
 
