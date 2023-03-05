@@ -2,3 +2,4 @@ terraform-provider-confluent-cloud-datasource-connectors*
 **/terraform.tfstate*
 **/.terraform
 **/.terraform.lock.hcl
+dist
