@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
@@ -51,17 +52,29 @@ func confluentConnectorsDataSource() *schema.Resource {
 }
 
 func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
-	// must be set to something or all data values be null!
+	d.SetId(d.Get(paramConnectorName).(string))
+
 	c := meta.(*Client)
+
+	var resolvedStatus string
+	var resolvedConfig map[string]string
 
 	// connector info
 	connectorInfoReq := c.connectClient.ConnectorsV1Api.ReadConnectv1Connector(
 		c.connectApiContext(ctx),
 		d.Get(paramConnectorName).(string), d.Get(paramEnvironmentId).(string), d.Get(paramKafkaClusterId).(string),
 	)
-	connector, _, err := connectorInfoReq.Execute()
+	connector, httpResponse, err := connectorInfoReq.Execute()
 	if err != nil {
-		return diag.Errorf("error reading Connector %q: %s", d.Id(), createDescriptiveError(err))
+		if ResponseHasExpectedStatusCode(httpResponse, http.StatusNotFound) {
+			resolvedConfig = nil
+			resolvedStatus = "NOT_DEFINED"
+		} else {
+			return diag.Errorf("error reading Connector %q: %s", d.Id(), createDescriptiveError(err))
+		}
+	} else {
+		resolvedConfig = connector.Config
+		resolvedStatus = "DEFINED"
 	}
 
 	// tflog.Debug(ctx, fmt.Sprintf("apiError: %s", apiError))
@@ -78,15 +91,13 @@ func confluentCloudConnectorsRead(ctx context.Context, d *schema.ResourceData, m
 	// tflog.Debug(ctx, fmt.Sprintf("something1: %s", something1))
 	// tflog.Debug(ctx, fmt.Sprintf("err1: %s", err1))
 
-	d.SetId(d.Get(paramConnectorName).(string))
-
 	// config := make(map[string]string)
 	// config["x"] = "z"
-	if err := d.Set(paramConfig, connector.Config); err != nil {
+	if err := d.Set(paramConfig, resolvedConfig); err != nil {
 		return diag.FromErr(err)
 	}
 
-	if err := d.Set(paramStatus, "NOT_DEFINED"); err != nil {
+	if err := d.Set(paramStatus, resolvedStatus); err != nil {
 		return diag.FromErr(err)
 	}
 
