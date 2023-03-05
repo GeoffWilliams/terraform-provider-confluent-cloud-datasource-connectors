@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 
 NAME := confluent-cloud-datasource-connectors
-VERSION := 0.0.1
+VERSION := 0.0.2
 OS := linux
 ARCH := amd64
 

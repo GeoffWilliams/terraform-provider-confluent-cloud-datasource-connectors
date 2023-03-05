@@ -31,11 +31,11 @@ EOF
 
 ## Directory for the plugin
 ```
-mkdir -p ~/.terraform.d/plugins/terraform.local/local/confluent-cloud-datasource-connectors/0.0.1/linux_amd64/
+mkdir -p ~/.terraform.d/plugins/terraform.local/local/confluent-cloud-datasource-connectors/0.0.2/linux_amd64/
 ```
 
 ## Symlink into place
 ```
-ln -fs $(pwd)/terraform-provider-confluent-cloud-datasource-connectors_v0.0.1 ~/.terraform.d/plugins/terraform.local/local/confluent-cloud-datasource-connectors/0.0.1/linux_amd64/terraform-provider-confluent-cloud-datasource-connectors_v0.0.1
+ln -fs $(pwd)/terraform-provider-confluent-cloud-datasource-connectors_v0.0.2 ~/.terraform.d/plugins/terraform.local/local/confluent-cloud-datasource-connectors/0.0.2/linux_amd64/terraform-provider-confluent-cloud-datasource-connectors_v0.0.2
 ```
 
